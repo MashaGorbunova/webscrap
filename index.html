@@ -1,0 +1,138 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <title>5 different contents</title>
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <style>
+            ul {
+                list-style-type: none;
+            }
+            li {
+                display: inline-block;
+                border: 1px solid #c0c0c0;
+                padding: 10px;
+            }
+            
+            #post-items li {
+                display: block;
+                width: 100%;
+                border: none;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="text-primary">Статьи из сайта <span style="font-style:italic">"ain.ua"</span></h3>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px">
+                <div class="col-md-12" id="post-items"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center" id="pagination" style="padding: 10px 15px"></div>
+            </div>
+        </div>
+    </body>
+</html>
+
+<script>
+    var contentArray = [];
+    
+    function getPartContent(cont){
+        var text = $('p', cont).text();
+        return text.substring(0, 300);
+    }
+    
+    function getFullContent(cont){
+        var content =  $(cont);
+        $('h1', content).remove();
+        $('.post-social', content).remove();
+        $('.mistape_caption', content).remove();
+        $('.post-tags', content).remove();
+        $('.news-subscribe', content).remove();
+        $('.post-ad', content).remove();
+        $('.see-more', content).remove();
+        $('.post-comments', content).remove();
+        $('.post-statistics', content).remove();    
+        return content.html();
+    }
+    
+    function seeContent(elem){
+        var id = $(elem).closest('.row').attr('data-key');
+        $('#post-items div[data-key='+id+']').html(
+                    '<div class="col-md-12" style="padding: 15px">'+
+                    '<h4>' + contentArray[id].title +
+                    ' <button class="btn btn-link" onClick="hideContent(this)">Hide</button>' +
+                    '</h4>' +
+                    '<div class="text-muted text-justify">'+ getFullContent(contentArray[id].content) +'</div>' +
+                    '</div>'
+                    );
+                    
+        $('img').addClass('img-responsive');
+    }
+    
+    function hideContent(elem){
+        var id = $(elem).closest('.row').attr('data-key');
+        $('#post-items div[data-key='+id+']').html(
+                    '<div class="col-md-12" style="padding: 15px">'+
+                    '<h4>' + contentArray[id].title +'</h4>' +
+                    '<p class="text-muted text-justify">'+ getPartContent(contentArray[id].content) +'...</p>' +
+                    '<button class="btn btn-default" onClick="seeContent(this)">More</button>' +
+                    '</div>'
+                    );
+    }
+    
+    function selectContent(){
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var page = url.searchParams.get("page");
+        
+        if(page == null){
+            page = 1;
+        }
+
+        $.ajax({
+            url: 'http://localhost:8090/select_content',
+            method: "get",
+            dataType: 'json',
+            data: {page: page},
+            success: function(cont){
+                for(var i=0; i< cont[1].length; i++){
+                    $('#post-items').append(
+                    '<div class="row" data-key="'+ i +'" style="margin-bottom: 10px; border: 1px solid #c0c0c0">'+
+                    '<div class="col-md-12" style="padding: 15px">'+
+                    '<h4>' + cont[1][i].title +'</h4>' +
+                    '<p class="text-muted text-justify">'+ getPartContent(cont[1][i].content) +'...</p>' +
+                    '<button class="btn btn-default" onClick="seeContent(this)">More</button>' +
+                    '</div>'+
+                    '</div>'
+                    );
+                }
+                contentArray = cont[1];
+                totalPagination = cont[0][0]['total'];
+                $('#pagination').append('<ul>');
+                for(var j=1; j<= Math.ceil(totalPagination/5); j++){
+                    if(j == page) {
+                        $('#pagination').append('<li><a href="/?page='+j+'"><span style="font-weight:bold; font-size: 18px">'+j+'</span></a></li>');
+                    }
+                    else {
+                        $('#pagination').append('<li><a href="/?page='+j+'">'+j+'</a></li>');
+                    }
+                    
+                }
+                $('#pagination').append('</ul>');
+            }
+        });
+    }
+    
+    $(document).ready(function(){
+        selectContent();         
+    });
+</script>

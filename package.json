@@ -1,0 +1,25 @@
+{
+  "name": "webscrap",
+  "version": "1.0.0",
+  "description": "scrapping",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "MashaG",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "cluster": "^0.7.7",
+    "express": "^4.16.2",
+    "fs": "0.0.1-security",
+    "get-element": "^0.1.1",
+    "mysql": "^2.15.0",
+    "nconf": "^0.10.0",
+    "osmosis": "^1.1.6",
+    "path": "^0.12.7",
+    "request": "^2.83.0",
+    "url": "^0.11.0"
+  }
+}
